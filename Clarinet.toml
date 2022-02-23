@@ -13,7 +13,7 @@ costs_version = 2
 parser_version = 2
 
 [repl.analysis]
-passes = []
+passes = ["check_checker"]
 
 [repl.analysis.check_checker]
 strict = false
