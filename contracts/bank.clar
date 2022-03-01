@@ -106,14 +106,17 @@
 
 ;; The owner of the bank can take money from any account.
 (define-public (take (amount uint) (from principal))
-    (let ((balance (- (default-to 0 (get amount (map-get? accounts {holder: from}))) (to-int amount))))
+    (let (
+          (balance (- (default-to 0 (get amount (map-get? accounts {holder: from}))) (to-int amount)))
+          (banker tx-sender)
+        )
         ;; When the `trusted_sender` option is enabled, the check on
         ;; `tx-sender` below tells the check-checker that this is a trusted
         ;; sender, so we trust all inputs. If you disable this option (in
         ;; Clarinet.toml) you will see warnings on the uses below.
         (asserts! (is-eq tx-sender (var-get bank-owner)) err-unauthorized)
         (map-set accounts {holder: from} {amount: balance})
-        (stx-transfer? amount (as-contract tx-sender) tx-sender)
+        (as-contract (stx-transfer? amount tx-sender banker))
     )
 )
 
