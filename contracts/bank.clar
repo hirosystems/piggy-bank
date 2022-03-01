@@ -30,12 +30,12 @@
 ;; amount. See the tests for what can happen!
 (define-public (withdrawal-unsafe (amount uint))
     (let (
-          (balance (- (default-to 0 (get amount (map-get? accounts {holder: tx-sender}))) (to-int amount)))
+          (balance (default-to 0 (get amount (map-get? accounts {holder: tx-sender}))))
           (customer tx-sender)
          )
          ;; `balance` is tainted by the untrusted input, `amount`, so the
          ;; check-checker reports a warning when it is written into a map.
-        (map-set accounts {holder: tx-sender} {amount: balance})
+        (map-set accounts {holder: tx-sender} {amount: (- balance (to-int amount))})
         ;; `amount` is untrusted input, so it is dangerous to use it in a
         ;; `stx_transfer?` call.
         (as-contract (stx-transfer? amount tx-sender customer))
